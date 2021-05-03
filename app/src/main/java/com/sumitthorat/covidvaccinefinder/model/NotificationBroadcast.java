@@ -3,6 +3,7 @@ package com.sumitthorat.covidvaccinefinder.model;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -14,6 +15,10 @@ import com.sumitthorat.covidvaccinefinder.model.vaccinesessions.VaccineSessionsM
 
 import java.util.List;
 
+import static com.sumitthorat.covidvaccinefinder.model.Constants.pincodeSharedPrefKey;
+import static com.sumitthorat.covidvaccinefinder.model.Constants.dateSharedPrefKey;
+import static com.sumitthorat.covidvaccinefinder.model.Constants.sharedPrefName;
+
 public class NotificationBroadcast extends BroadcastReceiver {
     private final static String TAG = "NotificationBroadcast";
 
@@ -24,8 +29,14 @@ public class NotificationBroadcast extends BroadcastReceiver {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                int pincode = 110001;
-                String date = "07-05-2021";
+                SharedPreferences sharedPreferences = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
+                int pincode = sharedPreferences.getInt(pincodeSharedPrefKey, -1);
+                String date = sharedPreferences.getString(dateSharedPrefKey, "");
+                if (pincode == -1 || date.equals("")) {
+                    Log.e(TAG, "Error with pincode and date fetchinf from shared preference");
+                    return;
+                }
+
                 List<Session> sessions = vaccineSessionsModel.fetchVaccineSessionsByPincodeAndDate(pincode, date);
 
                 String notifText = sessions == null ? "0" : sessions.size() + " sessions at " + pincode + " on " + date;
