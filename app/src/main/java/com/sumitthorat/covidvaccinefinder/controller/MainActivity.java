@@ -1,4 +1,4 @@
-package com.sumitthorat.covidvaccinefinder.view;
+package com.sumitthorat.covidvaccinefinder.controller;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,15 +14,23 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.sumitthorat.covidvaccinefinder.R;
+import com.sumitthorat.covidvaccinefinder.model.ApiInterface;
+import com.sumitthorat.covidvaccinefinder.model.ApiUtils;
+import com.sumitthorat.covidvaccinefinder.model.NotificationBroadcast;
 
 public class MainActivity extends AppCompatActivity {
 
     Button btnStartFinding;
+    ApiInterface apiInterface;
+
+    private final static String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        apiInterface = ApiUtils.getApiInterface();
 
         bindControls();
         setListeners();
@@ -52,9 +60,15 @@ public class MainActivity extends AppCompatActivity {
 
         long timeAtButtonClick = System.currentTimeMillis();
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP, timeAtButtonClick + 10000, pendingIntent);
+//        alarmManager.set(AlarmManager.RTC_WAKEUP, timeAtButtonClick + 10000, pendingIntent);
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeAtButtonClick, 60 * 1000, pendingIntent);
+
+
 
     }
+
+
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
