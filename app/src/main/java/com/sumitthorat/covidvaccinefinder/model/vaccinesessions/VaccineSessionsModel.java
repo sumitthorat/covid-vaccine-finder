@@ -5,6 +5,7 @@ import android.util.Log;
 import com.sumitthorat.covidvaccinefinder.model.ApiInterface;
 import com.sumitthorat.covidvaccinefinder.model.ApiUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VaccineSessionsModel {
@@ -15,7 +16,7 @@ public class VaccineSessionsModel {
         apiInterface = ApiUtils.getApiInterface();
     }
 
-    public List<Session> fetchVaccineSessionsByPincodeAndDate(int pincode, String date) {
+    public List<Session> fetchVaccineSessionsByPincodeDateAge(int pincode, String date, int age) {
         VaccineSessionsJSONResponse response = null;
 
         try {
@@ -24,6 +25,17 @@ public class VaccineSessionsModel {
             Log.e(TAG, "Exception: ", e);
         }
 
-        return response == null ? null : response.getSessions();
+
+        List<Session> filteredSessions = new ArrayList<>();
+
+        for (Session session: response.getSessions()) {
+            if (age >= session.getMinAgeLimit()) {
+                filteredSessions.add(session);
+            }
+        }
+
+
+        return response == null ? null : filteredSessions;
     }
+
 }

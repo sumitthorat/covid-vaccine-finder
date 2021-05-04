@@ -1,9 +1,5 @@
 package com.sumitthorat.covidvaccinefinder.controller;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
@@ -15,9 +11,11 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.sumitthorat.covidvaccinefinder.R;
@@ -32,7 +30,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     Button btnStartFinding, btnStopFinding;
-    TextInputLayout etPincode, etDate, etCheckingInterval;
+    TextInputLayout etPincode, etDate, etAge;
     ApiInterface apiInterface;
     ConstraintLayout mainActivityCL;
     AlarmManager alarmManager;
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         btnStopFinding = findViewById(R.id.btn_stop_finding);
         etPincode = findViewById(R.id.et_pincode);
         etDate = findViewById(R.id.et_date);
-        etCheckingInterval = findViewById(R.id.et_checking_interval);
+        etAge = findViewById(R.id.et_age);
     }
 
     private void setListeners() {
@@ -94,20 +92,21 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        int checkingInterval = 1;
+        int age = 1;
         try {
-            checkingInterval = Integer.parseInt(etCheckingInterval.getEditText().getText().toString());
+            age = Integer.parseInt(etAge.getEditText().getText().toString());
         } catch (Exception e) {
-            SnackbarUtil.showErrorSnackbar(mainActivityCL, "Please check interval");
+            SnackbarUtil.showErrorSnackbar(mainActivityCL, "Please check age");
             Log.e(TAG, "Exception: ", e);
             return;
         }
 
-        // Save pincode and date string to persistent store
+
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.sharedPrefName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Constants.pincodeSharedPrefKey, pincode);
         editor.putString(Constants.dateSharedPrefKey, dateAsStr);
+        editor.putInt(Constants.ageSharedPrefKey, age);
         editor.apply();
 
 
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         findSessionsPendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         long timeAtButtonClick = System.currentTimeMillis();
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeAtButtonClick, checkingInterval * 60 * 1000, findSessionsPendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeAtButtonClick, 60 * 1000, findSessionsPendingIntent);
 
     }
 
